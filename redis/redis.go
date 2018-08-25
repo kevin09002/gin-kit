@@ -1,4 +1,4 @@
-package rediskit
+package rds
 
 import (
 	"bytes"
