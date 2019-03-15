@@ -4,17 +4,12 @@ import (
 	"fmt"
 
 	"github.com/dustin/randbo"
-	"github.com/gin-gonic/gin"
 )
 
 const (
-	// SessionKey cookie name
-	SessionKey string = "ZQSESSID"
 	// SessionTime session有效期(单位:分钟), 默认7天
-	SessionTimeout      int = 7 * 24 * 60
-	SessionCookieDomain     = ""
-	sessionIDLen            = 36
-	DefaultKey              = "kevin09002/gin-kit/session"
+	SessionTimeout int = 7 * 24 * 60
+	sessionIDLen       = 36
 )
 
 var Store SessionStorage
@@ -35,19 +30,11 @@ type Session struct {
 	store SessionStorage
 }
 
-func Default(c *gin.Context) *Session {
-	return c.MustGet(DefaultKey).(*Session)
-}
-
-func SessionHandler(name string) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		s := &Session{
-			ID:    GetSessionID(c),
-			name:  name,
-			store: Store,
-		}
-		c.Set(DefaultKey, s)
-		c.Next()
+func NewSession(id, name string, store SessionStorage) *Session {
+	return &Session{
+		ID:    id,
+		name:  name,
+		store: store,
 	}
 }
 
@@ -63,16 +50,7 @@ func (s *Session) Clear(key string) error {
 	return s.store.ClearSession(s.name+":"+s.ID, key)
 }
 
-func GetSessionID(c *gin.Context) string {
-	cookieValue, _ := c.Cookie(SessionKey)
-	if cookieValue == "" {
-		cookieValue = newSessionID()
-		c.SetCookie(SessionKey, cookieValue, SessionTimeout*60, "/", SessionCookieDomain, false, false)
-	}
-	return cookieValue
-}
-
-func newSessionID() string {
+func NewSessionID() string {
 	buf := make([]byte, sessionIDLen)
 	randbo.New().Read(buf)
 	return fmt.Sprintf("%x", buf)

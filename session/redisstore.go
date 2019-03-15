@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/go-redis/redis"
-	"github.com/kevin09002/gin-kit/redis"
+	"github.com/kevinma2010/gkits/redis"
 )
 
 type redisStore struct {
